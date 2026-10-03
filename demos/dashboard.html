@@ -14,7 +14,7 @@
     .demo-bar { background: #111827; color: #93c5fd; text-align: center; font-size: 13px; padding: 8px; }
     .demo-bar a { color: #fff; }
     .app { display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 34px); }
-    @media (max-width: 860px) { .app { grid-template-columns: 1fr; } aside { display: none; } }
+    @media (max-width: 860px) { .app { grid-template-columns: minmax(0, 1fr); } aside { display: none; } }
     aside { background: var(--side); color: #cbd5e1; padding: 22px 14px; }
     .brand { color: #fff; font-weight: 700; font-size: 18px; padding: 0 10px 24px; }
     .brand span { color: #60a5fa; }
@@ -24,7 +24,8 @@
     .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
     .top h1 { font-size: 22px; }
     .top p { color: var(--muted); }
-    .controls { display: flex; gap: 8px; }
+    .controls { display: flex; gap: 8px; flex-wrap: wrap; }
+    .controls input { flex: 1; min-width: 0; }
     select, input, .icon-btn { padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); color: var(--text); font: 14px Inter; }
     .icon-btn { cursor: pointer; }
 
