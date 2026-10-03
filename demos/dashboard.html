@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Shopline Admin · Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root { --bg: #f4f6fb; --card: #fff; --text: #111827; --muted: #6b7280; --border: #e5e7eb; --accent: #2563eb; --soft: #eff6ff; --side: #0f172a; --green: #059669; --red: #dc2626; --amber: #d97706; }
+    :root[data-theme="dark"] { --bg: #0b1220; --card: #111a2e; --text: #e5e7eb; --muted: #94a3b8; --border: #1f2a44; --soft: #172554; --side: #070d1a; }
+    * { box-sizing: border-box; margin: 0; }
+    body { font-family: Inter, system-ui, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
+    .demo-bar { background: #111827; color: #93c5fd; text-align: center; font-size: 13px; padding: 8px; }
+    .demo-bar a { color: #fff; }
+    .app { display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 34px); }
+    @media (max-width: 860px) { .app { grid-template-columns: 1fr; } aside { display: none; } }
+    aside { background: var(--side); color: #cbd5e1; padding: 22px 14px; }
+    .brand { color: #fff; font-weight: 700; font-size: 18px; padding: 0 10px 24px; }
+    .brand span { color: #60a5fa; }
+    aside a { display: flex; gap: 10px; padding: 10px; border-radius: 8px; color: inherit; text-decoration: none; margin-bottom: 2px; }
+    aside a.active, aside a:hover { background: #1e293b; color: #fff; }
+    main { padding: 22px; min-width: 0; }
+    .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .top h1 { font-size: 22px; }
+    .top p { color: var(--muted); }
+    .controls { display: flex; gap: 8px; }
+    select, input, .icon-btn { padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); color: var(--text); font: 14px Inter; }
+    .icon-btn { cursor: pointer; }
+
+    .kpis { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); margin-bottom: 16px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; }
+    .kpi small { color: var(--muted); font-weight: 500; }
+    .kpi strong { display: block; font-size: 26px; margin: 6px 0 4px; }
+    .delta { font-size: 13px; font-weight: 600; }
+    .up { color: var(--green); } .down { color: var(--red); }
+
+    .charts { display: grid; gap: 14px; grid-template-columns: 2fr 1fr; margin-bottom: 16px; }
+    @media (max-width: 1000px) { .charts { grid-template-columns: 1fr; } }
+    .card h2 { font-size: 15px; margin-bottom: 14px; display: flex; justify-content: space-between; }
+    .card h2 span { color: var(--muted); font-weight: 500; }
+    svg text { fill: var(--muted); font-size: 11px; font-family: Inter; }
+    .bar-row { margin-bottom: 12px; }
+    .bar-row div:first-child { display: flex; justify-content: space-between; margin-bottom: 5px; }
+    .track { height: 8px; background: var(--soft); border-radius: 99px; overflow: hidden; }
+    .fill { height: 100%; background: var(--accent); border-radius: 99px; }
+
+    .table-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 640px; }
+    th { text-align: left; color: var(--muted); font-weight: 500; padding: 10px; border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; white-space: nowrap; }
+    td { padding: 12px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    tr:last-child td { border-bottom: 0; }
+    .badge { padding: 3px 9px; border-radius: 99px; font-size: 12px; font-weight: 600; }
+    .Delivered { background: #d1fae5; color: #065f46; } .Shipped { background: #dbeafe; color: #1e40af; }
+    .Pending { background: #fef3c7; color: #92400e; } .Cancelled { background: #fee2e2; color: #991b1b; }
+    .pager { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; color: var(--muted); }
+    .pager button { padding: 6px 12px; border: 1px solid var(--border); background: var(--card); color: var(--text); border-radius: 6px; cursor: pointer; }
+    .pager button:disabled { opacity: .4; cursor: default; }
+  </style>
+</head>
+<body>
+  <div class="demo-bar">Demo project. "Shopline" and all data are fictional. <a href="../index.html">← Back to portfolio</a></div>
+  <div class="app">
+    <aside>
+      <div class="brand">Shop<span>line</span></div>
+      <a class="active" href="#">📊 Overview</a><a href="#">🧾 Orders</a><a href="#">📦 Products</a><a href="#">👥 Customers</a><a href="#">⚙️ Settings</a>
+    </aside>
+    <main>
+      <div class="top">
+        <div><h1>Overview</h1><p id="range-label"></p></div>
+        <div class="controls">
+          <select id="range"><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option></select>
+          <button class="icon-btn" id="theme" title="Toggle dark mode">🌙</button>
+        </div>
+      </div>
+
+      <div class="kpis" id="kpis"></div>
+
+      <div class="charts">
+        <div class="card"><h2>Revenue <span id="rev-total"></span></h2><svg id="chart" viewBox="0 0 640 220" width="100%" role="img" aria-label="Revenue chart"></svg></div>
+        <div class="card"><h2>Top categories</h2><div id="cats"></div></div>
+      </div>
+
+      <div class="card">
+        <div class="table-head">
+          <h2 style="margin:0">Recent orders</h2>
+          <div class="controls">
+            <input id="search" placeholder="Search customer or ID…" />
+            <select id="status"><option value="">All statuses</option><option>Delivered</option><option>Shipped</option><option>Pending</option><option>Cancelled</option></select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th data-k="id">Order</th><th data-k="customer">Customer</th><th data-k="date">Date</th><th data-k="category">Category</th><th data-k="amount">Amount</th><th data-k="status">Status</th></tr></thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+        <div class="pager"><span id="page-info"></span><div><button id="prev">← Prev</button> <button id="next">Next →</button></div></div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Seeded random data so the demo looks the same on every load.
+    let seed = 42;
+    const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const pick = (a) => a[Math.floor(rand() * a.length)];
+    const NAMES = ["Aarav", "Diya", "Kabir", "Meera", "Rohan", "Isha", "Vikram", "Sneha", "Arjun", "Priya", "Nikhil", "Kavya", "Rahul", "Anjali", "Siddharth", "Pooja"];
+    const LAST = ["Sharma", "Reddy", "Iyer", "Patel", "Nair", "Gupta", "Rao", "Khan", "Das", "Joshi"];
+    const CATS = ["Home decor", "Kitchen", "Electronics", "Fashion", "Beauty"];
+    const STATUS = ["Delivered", "Delivered", "Delivered", "Shipped", "Shipped", "Pending", "Cancelled"];
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const ORDERS = [...Array(900)].map((_, i) => {
+      const d = new Date(today); d.setDate(d.getDate() - Math.floor(rand() * 180));
+      return { id: 10500 + i, customer: `${pick(NAMES)} ${pick(LAST)}`, date: d, category: pick(CATS), amount: Math.round(300 + rand() * rand() * 6000), status: pick(STATUS) };
+    }).sort((a, b) => b.date - a.date);
+
+    const $ = (id) => document.getElementById(id);
+    const inr = (n) => "₹" + Math.round(n).toLocaleString("en-IN");
+    const table = { sort: "date", dir: -1, page: 0, size: 8 };
+
+    function inRange(days, offset = 0) {
+      const end = new Date(today); end.setDate(end.getDate() - offset * days + 1);
+      const start = new Date(end); start.setDate(start.getDate() - days);
+      return ORDERS.filter((o) => o.date >= start && o.date < end);
+    }
+
+    function renderKpis(days) {
+      const cur = inRange(days), prev = inRange(days, 1);
+      const valid = (l) => l.filter((o) => o.status !== "Cancelled");
+      const metrics = [
+        ["Revenue", (l) => valid(l).reduce((s, o) => s + o.amount, 0), inr],
+        ["Orders", (l) => l.length, (n) => n.toLocaleString("en-IN")],
+        ["Avg. order value", (l) => valid(l).reduce((s, o) => s + o.amount, 0) / Math.max(1, valid(l).length), inr],
+        ["Cancellation rate", (l) => (l.filter((o) => o.status === "Cancelled").length / Math.max(1, l.length)) * 100, (n) => n.toFixed(1) + "%"],
+      ];
+      $("kpis").innerHTML = metrics.map(([label, fn, fmt], i) => {
+        const a = fn(cur), b = fn(prev);
+        const ch = b ? ((a - b) / b) * 100 : 0;
+        const good = i === 3 ? ch <= 0 : ch >= 0;
+        return `<div class="card kpi"><small>${label}</small><strong>${fmt(a)}</strong><span class="delta ${good ? "up" : "down"}">${ch >= 0 ? "▲" : "▼"} ${Math.abs(ch).toFixed(1)}%</span> <span style="color:var(--muted)">vs previous ${days} days</span></div>`;
+      }).join("");
+      $("range-label").textContent = `Store performance for the last ${days} days`;
+    }
+
+    function renderChart(days) {
+      const buckets = days <= 30 ? days : Math.ceil(days / 7);
+      const step = days <= 30 ? 1 : 7;
+      const data = [...Array(buckets)].map((_, i) => {
+        const end = new Date(today); end.setDate(end.getDate() - (buckets - 1 - i) * step + 1);
+        const start = new Date(end); start.setDate(start.getDate() - step);
+        return { label: start, value: ORDERS.filter((o) => o.date >= start && o.date < end && o.status !== "Cancelled").reduce((s, o) => s + o.amount, 0) };
+      });
+      const W = 640, H = 220, P = { l: 44, r: 10, t: 10, b: 24 };
+      const max = Math.max(...data.map((d) => d.value), 1);
+      const x = (i) => P.l + (i * (W - P.l - P.r)) / Math.max(1, data.length - 1);
+      const y = (v) => H - P.b - (v / max) * (H - P.t - P.b);
+      const line = data.map((d, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(d.value).toFixed(1)}`).join(" ");
+      const grid = [0, 0.5, 1].map((f) => `<line x1="${P.l}" x2="${W - P.r}" y1="${y(max * f)}" y2="${y(max * f)}" stroke="var(--border)"/><text x="${P.l - 6}" y="${y(max * f) + 4}" text-anchor="end">${(max * f / 1000).toFixed(0)}k</text>`).join("");
+      const labels = data.map((d, i) => i % Math.ceil(data.length / 6) === 0 ? `<text x="${x(i)}" y="${H - 6}" text-anchor="middle">${d.label.toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</text>` : "").join("");
+      $("chart").innerHTML = `${grid}<path d="${line} L${x(data.length - 1)},${H - P.b} L${P.l},${H - P.b} Z" fill="var(--accent)" opacity=".12"/><path d="${line}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round"/>${labels}`;
+      $("rev-total").textContent = inr(data.reduce((s, d) => s + d.value, 0));
+    }
+
+    function renderCats(days) {
+      const totals = CATS.map((c) => [c, inRange(days).filter((o) => o.category === c && o.status !== "Cancelled").reduce((s, o) => s + o.amount, 0)]).sort((a, b) => b[1] - a[1]);
+      const max = totals[0][1] || 1;
+      $("cats").innerHTML = totals.map(([c, v]) => `<div class="bar-row"><div><span>${c}</span><b>${inr(v)}</b></div><div class="track"><div class="fill" style="width:${(v / max) * 100}%"></div></div></div>`).join("");
+    }
+
+    function renderTable() {
+      const q = $("search").value.trim().toLowerCase(), st = $("status").value;
+      const rows = ORDERS.filter((o) => (!st || o.status === st) && (!q || o.customer.toLowerCase().includes(q) || String(o.id).includes(q)))
+        .sort((a, b) => (a[table.sort] > b[table.sort] ? 1 : -1) * table.dir);
+      const pages = Math.max(1, Math.ceil(rows.length / table.size));
+      table.page = Math.min(table.page, pages - 1);
+      $("rows").innerHTML = rows.slice(table.page * table.size, (table.page + 1) * table.size).map((o) =>
+        `<tr><td>#${o.id}</td><td>${o.customer}</td><td>${o.date.toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</td><td>${o.category}</td><td>${inr(o.amount)}</td><td><span class="badge ${o.status}">${o.status}</span></td></tr>`).join("") ||
+        `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:30px">No orders match your filters.</td></tr>`;
+      $("page-info").textContent = `${rows.length} orders · page ${table.page + 1} of ${pages}`;
+      $("prev").disabled = table.page === 0;
+      $("next").disabled = table.page >= pages - 1;
+      document.querySelectorAll("th").forEach((th) => (th.textContent = th.textContent.replace(/ [▲▼]$/, "") + (th.dataset.k === table.sort ? (table.dir > 0 ? " ▲" : " ▼") : "")));
+    }
+
+    function renderAll() {
+      const days = Number($("range").value);
+      renderKpis(days); renderChart(days); renderCats(days); renderTable();
+    }
+
+    $("range").onchange = renderAll;
+    $("search").oninput = () => { table.page = 0; renderTable(); };
+    $("status").onchange = () => { table.page = 0; renderTable(); };
+    $("prev").onclick = () => { table.page--; renderTable(); };
+    $("next").onclick = () => { table.page++; renderTable(); };
+    document.querySelectorAll("th").forEach((th) => (th.onclick = () => {
+      table.dir = table.sort === th.dataset.k ? -table.dir : 1; table.sort = th.dataset.k; renderTable();
+    }));
+    $("theme").onclick = () => {
+      const dark = document.documentElement.dataset.theme !== "dark";
+      document.documentElement.dataset.theme = dark ? "dark" : "light";
+      $("theme").textContent = dark ? "☀️" : "🌙";
+    };
+    renderAll();
+  </script>
+</body>
+</html>

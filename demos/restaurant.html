@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Spice Route Kitchen · Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root { --bg: #fffaf3; --text: #2b1d12; --muted: #7a6656; --accent: #c2410c; --accent-dark: #9a3412; --card: #fff; --border: #efe2d3; }
+    * { box-sizing: border-box; margin: 0; }
+    body { font-family: Inter, system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+    h1, h2, h3 { font-family: "Playfair Display", Georgia, serif; line-height: 1.15; }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+    .demo-bar { background: #1c1917; color: #fbbf24; text-align: center; font-size: 13px; padding: 8px; }
+    .demo-bar a { color: #fff; }
+
+    header { position: relative; min-height: 88vh; display: flex; flex-direction: column; color: #fff;
+      background: radial-gradient(circle at 75% 30%, rgba(251,146,60,.55), transparent 45%), linear-gradient(160deg, #431407 0%, #7c2d12 45%, #c2410c 100%); }
+    header nav { display: flex; justify-content: space-between; align-items: center; padding: 22px 0; }
+    .brand { font-family: "Playfair Display"; font-size: 24px; font-weight: 700; }
+    header nav a { color: #fff; text-decoration: none; margin-left: 22px; font-weight: 500; font-size: 15px; opacity: .9; }
+    @media (max-width: 640px) { header nav .links a:not(.book) { display: none; } }
+    .hero { flex: 1; display: flex; flex-direction: column; justify-content: center; padding-bottom: 60px; }
+    .hero small { letter-spacing: .25em; text-transform: uppercase; font-size: 13px; color: #fed7aa; }
+    .hero h1 { font-size: clamp(42px, 8vw, 82px); max-width: 760px; margin: 14px 0 18px; }
+    .hero p { font-size: 19px; max-width: 520px; color: #ffedd5; }
+    .hero .actions { display: flex; gap: 12px; margin-top: 30px; flex-wrap: wrap; }
+    .btn { display: inline-block; padding: 13px 26px; border-radius: 999px; font-weight: 600; text-decoration: none; border: 0; cursor: pointer; font-size: 15px; font-family: inherit; }
+    .btn-light { background: #fff; color: var(--accent-dark); }
+    .btn-outline { border: 1.5px solid rgba(255,255,255,.7); color: #fff; }
+    .btn-accent { background: var(--accent); color: #fff; }
+    .btn-accent:hover { background: var(--accent-dark); }
+    .info { display: flex; gap: 32px; flex-wrap: wrap; margin-top: 48px; font-size: 14px; color: #fed7aa; }
+    .info strong { display: block; color: #fff; font-size: 16px; }
+
+    section { padding: 80px 0; }
+    .head { text-align: center; margin-bottom: 40px; }
+    .head small { color: var(--accent); letter-spacing: .2em; text-transform: uppercase; font-size: 12px; font-weight: 600; }
+    .head h2 { font-size: clamp(32px, 5vw, 46px); margin-top: 6px; }
+
+    .tabs { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 32px; }
+    .tabs button { border: 1px solid var(--border); background: var(--card); padding: 9px 18px; border-radius: 999px; cursor: pointer; font: 500 14px Inter; color: var(--muted); }
+    .tabs button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .menu { display: grid; gap: 14px 40px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+    .dish { display: flex; justify-content: space-between; gap: 16px; padding: 14px 0; border-bottom: 1px dashed var(--border); }
+    .dish h3 { font-size: 19px; }
+    .dish p { color: var(--muted); font-size: 14px; }
+    .dish .price { font-weight: 600; color: var(--accent); white-space: nowrap; }
+    .veg { display: inline-block; width: 12px; height: 12px; border: 1.5px solid #15803d; border-radius: 2px; position: relative; margin-right: 6px; vertical-align: 1px; }
+    .veg::after { content: ""; position: absolute; inset: 2px; border-radius: 50%; background: #15803d; }
+    .veg.non { border-color: #b91c1c; } .veg.non::after { background: #b91c1c; }
+
+    .gallery { display: grid; gap: 12px; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 160px; }
+    .gallery div { border-radius: 14px; display: grid; place-items: center; font-size: 48px; }
+    .gallery div:nth-child(1) { grid-column: span 2; grid-row: span 2; font-size: 90px; background: linear-gradient(135deg,#fdba74,#c2410c); }
+    .gallery div:nth-child(2) { background: linear-gradient(135deg,#fde68a,#d97706); }
+    .gallery div:nth-child(3) { background: linear-gradient(135deg,#bbf7d0,#15803d); }
+    .gallery div:nth-child(4) { background: linear-gradient(135deg,#fecaca,#b91c1c); }
+    .gallery div:nth-child(5) { background: linear-gradient(135deg,#e9d5ff,#7e22ce); }
+    @media (max-width: 640px) { .gallery { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 130px; } }
+
+    .reviews { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+    .review { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; }
+    .stars { color: #f59e0b; letter-spacing: 2px; }
+    .review p { margin: 10px 0 14px; }
+    .review span { color: var(--muted); font-size: 14px; }
+
+    .reserve { background: #2b1d12; color: #fff; border-radius: 24px; padding: 48px 28px; display: grid; gap: 36px; grid-template-columns: 1fr 1.2fr; }
+    @media (max-width: 760px) { .reserve { grid-template-columns: 1fr; } }
+    .reserve h2 { font-size: 40px; }
+    .reserve p { color: #e7d5c4; margin-top: 12px; }
+    form { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
+    form .full { grid-column: 1 / -1; }
+    label { font-size: 13px; color: #e7d5c4; display: block; margin-bottom: 4px; }
+    input, select { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid #4a3626; background: #3a2819; color: #fff; font: 15px Inter; }
+    input:focus, select:focus { outline: 2px solid var(--accent); border-color: transparent; }
+    .ok { display: none; background: #14532d; border-radius: 12px; padding: 16px; grid-column: 1 / -1; }
+    footer { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="demo-bar">Demo project. "Spice Route Kitchen" is a fictional restaurant. <a href="../index.html">← Back to portfolio</a></div>
+
+  <header>
+    <div class="wrap">
+      <nav>
+        <div class="brand">Spice Route</div>
+        <div class="links"><a href="#menu">Menu</a><a href="#gallery">Gallery</a><a href="#reviews">Reviews</a><a class="book btn btn-light" style="padding:9px 18px" href="#reserve">Book a table</a></div>
+      </nav>
+    </div>
+    <div class="wrap hero">
+      <small>South Indian · Since 2009</small>
+      <h1>Flavours of the Spice Route, served fresh every day.</h1>
+      <p>Slow-cooked curries, crisp dosas and coastal seafood, made with spices ground in-house every morning.</p>
+      <div class="actions">
+        <a class="btn btn-light" href="#reserve">Reserve a table</a>
+        <a class="btn btn-outline" href="#menu">View menu</a>
+      </div>
+      <div class="info">
+        <div><strong>Open daily</strong>11:30 AM – 11:00 PM</div>
+        <div><strong>Location</strong>Demo Street, Your City</div>
+        <div><strong>Rated 4.7 ★</strong>2,300+ reviews</div>
+      </div>
+    </div>
+  </header>
+
+  <section id="menu">
+    <div class="wrap">
+      <div class="head"><small>Our menu</small><h2>Chef's favourites</h2></div>
+      <div class="tabs" id="tabs"></div>
+      <div class="menu" id="menu-list"></div>
+    </div>
+  </section>
+
+  <section id="gallery" style="padding-top:0">
+    <div class="wrap">
+      <div class="head"><small>Gallery</small><h2>A taste before you visit</h2></div>
+      <div class="gallery"><div>🍛</div><div>🥘</div><div>🌿</div><div>🦐</div><div>🍮</div></div>
+    </div>
+  </section>
+
+  <section id="reviews" style="padding-top:0">
+    <div class="wrap">
+      <div class="head"><small>Reviews</small><h2>What guests say</h2></div>
+      <div class="reviews">
+        <div class="review"><div class="stars">★★★★★</div><p>"The ghee roast was incredible, and the staff remembered our order from last time."</p><span>Sample review · Family dinner</span></div>
+        <div class="review"><div class="stars">★★★★★</div><p>"Best filter coffee and dosa in the area. Quick service even on a busy Sunday."</p><span>Sample review · Breakfast</span></div>
+        <div class="review"><div class="stars">★★★★☆</div><p>"Booked online in a minute and our table was ready when we arrived."</p><span>Sample review · Birthday</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="reserve" style="padding-top:0">
+    <div class="wrap">
+      <div class="reserve">
+        <div>
+          <h2>Book a table</h2>
+          <p>Reserve in under a minute. We'll confirm on WhatsApp. For groups larger than 10, please call us.</p>
+        </div>
+        <form id="reserve-form">
+          <div><label for="name">Name</label><input id="name" required placeholder="Your name" /></div>
+          <div><label for="phone">Phone</label><input id="phone" required type="tel" pattern="[0-9+ ]{10,14}" placeholder="98XXXXXXXX" /></div>
+          <div><label for="date">Date</label><input id="date" required type="date" /></div>
+          <div><label for="time">Time</label>
+            <select id="time" required><option value="">Choose…</option><option>12:30 PM</option><option>1:30 PM</option><option>7:00 PM</option><option>8:00 PM</option><option>9:00 PM</option></select>
+          </div>
+          <div class="full"><label for="guests">Guests</label>
+            <select id="guests"><option>2 people</option><option>3 people</option><option>4 people</option><option>5–6 people</option><option>7–10 people</option></select>
+          </div>
+          <button class="btn btn-accent full" type="submit">Confirm reservation</button>
+          <div class="ok" id="ok"></div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <footer>Spice Route Kitchen (demo) · Built by <a href="../index.html">Siva</a></footer>
+
+  <script>
+    const MENU = {
+      Starters: [
+        ["Gobi 65", "Crispy cauliflower tossed in curry leaves and chilli", 180, true],
+        ["Chicken Ghee Roast", "Mangalorean classic, slow-roasted in ghee and byadgi chilli", 320, false],
+        ["Paneer Pepper Fry", "Black pepper, onions and fresh coriander", 240, true],
+        ["Prawn Rava Fry", "Semolina-crusted prawns with kokum", 360, false],
+      ],
+      Mains: [
+        ["Masala Dosa", "Crisp rice crepe, potato palya, chutneys and sambar", 140, true],
+        ["Bisi Bele Bath", "Spiced rice and lentils with ghee and boondi", 160, true],
+        ["Malabar Fish Curry", "Kingfish in coconut and raw-mango gravy", 380, false],
+        ["Chettinad Chicken", "Roasted spices, curry leaves and coconut", 340, false],
+      ],
+      Desserts: [
+        ["Elaneer Payasam", "Tender coconut kheer, served chilled", 150, true],
+        ["Mysore Pak", "Melt-in-mouth ghee sweet, made in-house", 120, true],
+        ["Filter Coffee", "Strong decoction, frothy milk", 60, true],
+      ],
+    };
+    const tabs = document.getElementById("tabs");
+    const list = document.getElementById("menu-list");
+    function show(cat) {
+      tabs.querySelectorAll("button").forEach((b) => b.classList.toggle("active", b.textContent === cat));
+      list.innerHTML = MENU[cat].map(([n, d, p, veg]) =>
+        `<div class="dish"><div><h3><span class="veg ${veg ? "" : "non"}"></span>${n}</h3><p>${d}</p></div><div class="price">₹${p}</div></div>`).join("");
+    }
+    Object.keys(MENU).forEach((cat) => {
+      const b = document.createElement("button");
+      b.textContent = cat;
+      b.onclick = () => show(cat);
+      tabs.appendChild(b);
+    });
+    show("Starters");
+
+    const date = document.getElementById("date");
+    date.min = new Date().toISOString().slice(0, 10);
+    document.getElementById("reserve-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const ok = document.getElementById("ok");
+      const name = document.getElementById("name").value.trim();
+      const when = new Date(date.value).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" });
+      ok.textContent = `✅ Thanks ${name}! Table for ${document.getElementById("guests").value} on ${when} at ${document.getElementById("time").value} is requested. (Demo: nothing was sent.)`;
+      ok.style.display = "block";
+      e.target.querySelector("button").disabled = true;
+    });
+  </script>
+</body>
+</html>
