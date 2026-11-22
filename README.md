@@ -1,10 +1,11 @@
-# Freelance portfolio
+# siva-roddavarapu.github.io
 
 Plain HTML/CSS/JS with no build step. Open `index.html` in a browser to preview it.
 
 | File | What it is |
 |---|---|
-| `index.html` | Portfolio homepage: work, pricing, process, contact |
+| `index.html` | Main portfolio for employers: experience, stack, AI work, projects, contact. Built from `portfolio/src/site.html` in test-repo-A |
+| `freelance/index.html` | Freelance homepage: work, pricing, process, contact |
 | `demos/restaurant.html` | Demo 1: restaurant landing page with menu tabs and a reservation form |
 | `demos/clinic-booking.html` | Demo 2: appointment booking with doctors, dates and free/booked slots |
 | `demos/dashboard.html` | Demo 3: sales admin dashboard with KPIs, chart, filterable table and dark mode |
