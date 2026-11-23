@@ -79,7 +79,21 @@ a { color: inherit; }
 .rail { position: absolute; left: 0; top: 0; width: var(--rail); pointer-events: none; }
 .rail svg { display: block; width: 100%; overflow: visible; }
 .stages { grid-column: 2; min-width: 0; }
-.stage { padding-block: 56px 72px; }
+.stage { padding-block: 56px 72px; isolation: isolate; overflow-x: clip; transform-origin: 50% 0; will-change: transform, opacity; }
+.ghost {
+  position: absolute; z-index: -1; top: 18px; right: 0; pointer-events: none; user-select: none;
+  font: 800 clamp(72px, 13vw, 176px)/1 var(--display); letter-spacing: -.04em; white-space: nowrap;
+  color: transparent; -webkit-text-stroke: 1.2px var(--line); opacity: .7; transform: translateX(var(--gx, 0px));
+}
+.js .rv { opacity: 0; transform: translateY(26px); transition: opacity .9s cubic-bezier(.2,.7,.2,1) var(--d, 0s), transform .9s cubic-bezier(.2,.7,.2,1) var(--d, 0s); }
+.js .rv.in { opacity: 1; transform: none; }
+.js .split .w { display: inline-block; overflow: hidden; vertical-align: bottom; padding-bottom: .08em; margin-bottom: -.08em; }
+.js .split .w > span { display: inline-block; transform: translateY(108%); transition: transform 1s cubic-bezier(.16,.84,.24,1) var(--d, 0s); }
+.js .split.in .w > span { transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .js .rv, .js .split .w > span { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .stage { transform: none !important; opacity: 1 !important; }
+}
 .stage-head { display: grid; gap: 6px; margin-bottom: 28px; }
 .job {
   font: 500 12.5px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase;
@@ -252,10 +266,10 @@ p { margin: 0; max-width: 64ch; }
   position: fixed; z-index: 15; pointer-events: none;
   right: max(4px, env(safe-area-inset-right, 0px));
   bottom: calc(50px + env(safe-area-inset-bottom, 0px));
-  width: 300px; height: 260px;
+  width: 300px; height: 300px;
 }
-@media (max-width: 1199px) { #drake { width: 210px; height: 182px; } }
-@media (max-width: 760px) { #drake { width: 150px; height: 130px; } }
+@media (max-width: 1199px) { #drake { width: 210px; height: 210px; } }
+@media (max-width: 760px) { #drake { width: 150px; height: 150px; } }
 .drake-hint { font: 500 12px/1.4 var(--mono); color: var(--muted); margin-top: 10px; }
 
 /* ---------- theme toggle ---------- */
@@ -637,7 +651,7 @@ p { margin: 0; max-width: 64ch; }
       cw = cv.clientWidth; ch = cv.clientHeight;
       cv.width = Math.round(cw * dpr); cv.height = Math.round(ch * dpr);
       g.setTransform(dpr, 0, 0, dpr, 0, 0);
-      sc = cw / 300; ox = cw - 118 * sc; oy = ch - 18 * sc;
+      sc = cw / 300; ox = cw - 150 * sc; oy = ch - 18 * sc;
     }
     const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
     const lerp = (a, b, k) => a + (b - a) * k;
@@ -663,13 +677,15 @@ p { margin: 0; max-width: 64ch; }
       type: [{ x: -36, y: -30 }, { x: -60, y: -14 }],
       chin: [{ x: -38, y: -60 }, { x: -44, y: -84 }],
       up:   [{ x: -32, y: -72 }, { x: -36, y: -102 }],
-      hold: [{ x: -36, y: -42 }, { x: -52, y: -56 }]
+      hold: [{ x: -36, y: -42 }, { x: -52, y: -56 }],
+      tuck: [{ x: -32, y: -38 }, { x: -22, y: -30 }]
     };
     const M = {}; KEYS.forEach(k => M[k] = 0); Object.assign(M, { look: .06, brow: .25, lid: 1, smile: .7 });
     const arm = { e: { ...ARM.down[0] }, p: { ...ARM.down[1] } };
     let mood = 'push';
 
     let t = 0, last = performance.now(), act = null, nextIdle = 4, idle = 0, sleeping = false, blinkT = 2.5, blink = 0, cool = 0, over = false, happyT = 3;
+    let F = 0, flyVel = 0, lastSY = scrollY, lastST = performance.now(), flyUntil = 0, airborne = false, landedMood = 'push';
     const mouse = { x: 0, y: 0, seen: false };
     const look = { th: 0, hx: 0, hy: 0 };
     const parts = []; const acc = {};
@@ -699,6 +715,14 @@ p { margin: 0; max-width: 64ch; }
         }
       }
       if (sleeping) o.squint = 1;
+      if (F > .01) {
+        o.unfold = Math.max(o.unfold, ease(F * 1.3));
+        o.flap = lerp(o.flap, Math.sin(t * 12), ease(F * 1.5));
+        o.hop = lerp(o.hop, -(48 + Math.sin(t * 6) * 5), ease(F));
+        o.tailAmp += F * 2; o.tailSpeed += F * 4;
+        o.tilt = F * clamp(flyVel / 2200, -.22, .22);
+        o.extraTh += F * (flyVel > 0 ? -.12 : .14);
+      }
       return o;
     }
 
@@ -864,7 +888,7 @@ p { margin: 0; max-width: 64ch; }
         g.restore(); g.globalAlpha = 1;
       }
 
-      g.save(); g.translate(0, o.hop);
+      g.save(); g.translate(0, o.hop); if (o.tilt) { g.translate(10, -45); g.rotate(o.tilt); g.translate(-10, 45); }
       const breath = 1 + Math.sin(t * (sleeping ? 1.2 : 2.1)) * .022;
 
       // tail
@@ -885,8 +909,9 @@ p { margin: 0; max-width: 64ch; }
 
       // far side
       drawWing(wingPose(o, { x: 9, y: -5 }), true);
-      limb([{ x: -8, y: -44 }, { x: -13, y: -22 }, { x: -18, y: -1 - o.hop }], 7.5, C.bone, true);
-      limb([{ x: 46, y: -16 }, { x: 36, y: -3 - o.hop }], 7, C.bone, true);
+      const fe = ease(F), plant = -o.hop * (1 - fe);
+      limb([{ x: -8, y: -44 }, { x: -13 + fe * 6, y: -22 - fe * 4 }, { x: -18 + fe * 14, y: -1 + plant - fe * 10 }], 7.5, C.bone, true);
+      limb([{ x: 46, y: -16 }, { x: 36 + fe * 16, y: -3 + plant - fe * 6 }], 7, C.bone, true);
 
       // torso
       g.save(); g.translate(10, -45); g.scale(1 + M.chest * .035, breath + M.chest * .02); g.translate(-10, 45);
@@ -903,7 +928,7 @@ p { margin: 0; max-width: 64ch; }
       [[-12, -82, 6.5], [2, -80, 7.5], [16, -76, 7.5], [30, -70, 7], [44, -60, 6], [55, -48, 5]].forEach(([x, y, h]) => spike(x, y, .25, -1, 1, .25, h, 2.6));
       g.restore();
 
-      limb([{ x: 44, y: -16 }, { x: 34, y: -3 - o.hop }], 8.5, C.body, true);
+      limb([{ x: 44, y: -16 }, { x: 34 + fe * 18, y: -3 + plant - fe * 4 }], 8.5, C.body, true);
 
       // neck
       const H = { x: HR.x + look.hx + o.shakeX + (sleeping ? 8 : 0) + (mood === 'checkout' ? -5 : 0), y: HR.y + look.hy + (sleeping ? 26 : 0) };
@@ -967,7 +992,7 @@ p { margin: 0; max-width: 64ch; }
       g.restore();
 
       // speech bubble on hover
-      if (act && HOVER[mood] === act.name) {
+      if (act && HOVER[mood] === act.name && F < .3) {
         const text = MOODS[mood].say; g.font = '600 12px "IBM Plex Mono", monospace';
         const w = g.measureText(text).width + 18, bx = Math.max(-108, headTf.x - w - 6), by = headTf.y - 70;
         g.globalAlpha = Math.min(1, Math.sin(act.p * Math.PI) * 3);
@@ -1020,15 +1045,26 @@ p { margin: 0; max-width: 64ch; }
         parts.push({ kind, x, y, vx, vy, life: 1, decay, ch });
       }
     }
+    function emitDust() {
+      for (let i = 0; i < 9; i++) parts.push({ kind: 'smoke', x: -30 + Math.random() * 90, y: -3, vx: (Math.random() - .5) * 60, vy: -6 - Math.random() * 10, life: .8, decay: 1.1, ch: '' });
+    }
     const emitRate = (kind, rate, dt, from) => { const key = kind + (from || ''); acc[key] = (acc[key] || 0) + rate * dt; const n = Math.floor(acc[key]); if (n > 0) { acc[key] -= n; emit(kind, n, from); } };
 
     function step(dt) {
       t += dt;
       // ease the mood toward the current section
       mood = section();
+      const flying = performance.now() < flyUntil && !reduce;
+      F += ((flying ? 1 : 0) - F) * Math.min(1, dt * (flying ? 5 : 2.6));
+      flyVel *= Math.pow(.2, dt);
+      if (!airborne && F > .55) { airborne = true; sleeping = false; idle = 0; emitDust(); }
+      if (airborne && F < .12) {
+        airborne = false; emitDust();
+        if (mood !== landedMood) { landedMood = mood; act = null; start(HOVER[mood] || 'fire'); cool = 2.2; }
+      }
       const target = MOODS[mood];
       KEYS.forEach(k => { M[k] += ((target[k] || 0) - M[k]) * Math.min(1, dt * 4); });
-      const at = ARM[target.paw];
+      const at = F > .4 ? ARM.tuck : ARM[target.paw];
       arm.e = lp(arm.e, at[0], Math.min(1, dt * 5)); arm.p = lp(arm.p, at[1], Math.min(1, dt * 5));
       // where the head and eyes look
       if (mouse.seen && !sleeping) {
@@ -1091,7 +1127,13 @@ p { margin: 0; max-width: 64ch; }
     };
     addEventListener('pointermove', onMove, { passive: true });
     addEventListener('pointerdown', e => { onMove(e); if (hit(e)) react(); }, { passive: true });
-    addEventListener('scroll', () => { idle = 0; if (reduce) render(); }, { passive: true });
+    addEventListener('scroll', () => {
+      idle = 0;
+      const now = performance.now(), dy = scrollY - lastSY, dtm = Math.max(16, now - lastST);
+      const v = dy / dtm * 1000; lastSY = scrollY; lastST = now;
+      if (Math.abs(v) > 60) { flyUntil = now + 380; flyVel = lerp(flyVel, v, .4); }
+      if (reduce) render();
+    }, { passive: true });
     addEventListener('resize', () => { size(); if (reduce) render(); });
     new MutationObserver(() => { readColors(); if (reduce) render(); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
     matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { readColors(); if (reduce) render(); });
@@ -1110,6 +1152,61 @@ p { margin: 0; max-width: 64ch; }
     document.addEventListener('visibilitychange', () => { if (!document.hidden && paused) { paused = false; last = performance.now(); requestAnimationFrame(frame); } });
     size(); readColors();
     if (reduce) render(); else requestAnimationFrame(frame);
+  })();
+
+  /* ---------- section transitions ---------- */
+  (() => {
+    // outlined stage names drifting behind each section
+    stages.forEach(st => {
+      if (st.classList.contains('hero')) return;
+      const gh = document.createElement('div'); gh.className = 'ghost'; gh.setAttribute('aria-hidden', 'true');
+      gh.textContent = st.dataset.job; st.prepend(gh);
+    });
+    if (reduce) return;
+    // headings rise word by word out of a mask
+    const split = el => {
+      const words = [];
+      el.childNodes.forEach(n => {
+        if (n.nodeType === 3) n.textContent.split(/(\s+)/).forEach(w => words.push(w.trim() ? { w } : { sp: w }));
+        else words.push({ node: n });
+      });
+      el.textContent = '';
+      let i = 0;
+      words.forEach(x => {
+        if (x.sp !== undefined) { el.appendChild(document.createTextNode(' ')); return; }
+        const outer = document.createElement('span'); outer.className = 'w';
+        const inner = document.createElement('span'); inner.style.setProperty('--d', (i++ * .06) + 's');
+        if (x.node) inner.appendChild(x.node); else inner.textContent = x.w;
+        outer.appendChild(inner); el.appendChild(outer);
+      });
+      el.classList.add('split');
+    };
+    document.querySelectorAll('.stage h2, .hero h1').forEach(split);
+    // content eases up in a staggered sequence
+    const groups = ['.lead', '.about-grid > *', '.metrics', '.dep', '.entry', '.rag > *', '.steps li', '.card', '.contact', '.facts > div', '.term', '.cta', '.drake-hint', '.rag-note'];
+    stages.forEach(st => {
+      let k = 0;
+      st.querySelectorAll(groups.join(',')).forEach(el => { if (el.closest('.rv')) return; el.classList.add('rv'); el.style.setProperty('--d', Math.min(k++ * .07, .6) + 's'); });
+    });
+    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px', threshold: .05 });
+    document.querySelectorAll('.rv, .split').forEach(el => io.observe(el));
+    // the section you are leaving recedes; outlined names drift with scroll
+    const ghosts = [...document.querySelectorAll('.ghost')];
+    let tk = 0;
+    const depth = () => {
+      tk = 0;
+      const vh = innerHeight;
+      stages.forEach(st => {
+        const r = st.getBoundingClientRect();
+        const leave = Math.min(1, Math.max(0, (vh * .45 - r.bottom) / (vh * .45)));
+        st.style.transform = leave ? `scale(${1 - leave * .045}) translateY(${leave * -18}px)` : '';
+        st.style.opacity = leave ? String(1 - leave * .55) : '';
+      });
+      ghosts.forEach(gh => { const r = gh.parentElement.getBoundingClientRect(); gh.style.setProperty('--gx', ((r.top - vh * .3) * .22).toFixed(1) + 'px'); });
+    };
+    addEventListener('scroll', () => { if (!tk) tk = requestAnimationFrame(depth); }, { passive: true });
+    addEventListener('resize', depth);
+    depth();
   })();
 
   /* theme toggle */
