@@ -1,10 +1,12 @@
 # siva-roddavarapu.github.io
 
-Plain HTML/CSS/JS with no build step. Open `index.html` in a browser to preview it.
+Plain HTML/CSS/JS. The main page is edited in `src/site.html` and built into `index.html` with `./build.sh`; everything else needs no build step. Open `index.html` in a browser to preview it.
 
 | File | What it is |
 |---|---|
-| `index.html` | Main portfolio for employers: experience, stack, AI work, projects, contact. Built from `portfolio/src/site.html` in test-repo-A |
+| `index.html` | Main portfolio for employers: experience, stack, AI work, projects, contact. Generated from `src/site.html`; do not edit by hand |
+| `src/site.html` | Source of the main portfolio: content, styles and the dragon animation. Edit this, then run `./build.sh` |
+| `build.sh` | Wraps `src/site.html` into `index.html` |
 | `freelance/index.html` | Freelance homepage: work, pricing, process, contact |
 | `demos/restaurant.html` | Demo 1: restaurant landing page with menu tabs and a reservation form |
 | `demos/clinic-booking.html` | Demo 2: appointment booking with doctors, dates and free/booked slots |
