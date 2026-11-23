@@ -7,6 +7,7 @@ Plain HTML/CSS/JS. The main page is edited in `src/site.html` and built into `in
 | `index.html` | Main portfolio for employers: experience, stack, AI work, projects, contact. Generated from `src/site.html`; do not edit by hand |
 | `src/site.html` | Source of the main portfolio: content, styles and the dragon animation. Edit this, then run `./build.sh` |
 | `build.sh` | Wraps `src/site.html` into `index.html` |
+| `Siva_Vasanth_Roddavarapu_Resume.pdf` | Latest resume, linked from the portfolio's top buttons and contact section. Replace this file to update it |
 | `freelance/index.html` | Freelance homepage: work, pricing, process, contact |
 | `demos/restaurant.html` | Demo 1: restaurant landing page with menu tabs and a reservation form |
 | `demos/clinic-booking.html` | Demo 2: appointment booking with doctors, dates and free/booked slots |
